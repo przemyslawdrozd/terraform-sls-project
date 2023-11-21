@@ -11,6 +11,8 @@ terraform {
 
 provider "aws" {
   region  = "eu-central-1"
+  profile = "terraform-user"
+}
 
 ###################
 ### API Gateway ###
