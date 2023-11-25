@@ -76,6 +76,9 @@ resource "aws_lambda_function" "book-lambda" {
   runtime       = "python3.8"
   role          = aws_iam_role.book-lambda-role.arn
   filename      = "./output/get_books.zip"
+
+  # Introduce a change to trigger updates
+  source_code_hash = filebase64sha256("${path.module}/output/get_books.zip")
 }
 
 data "archive_file" "zip_lambda" {
