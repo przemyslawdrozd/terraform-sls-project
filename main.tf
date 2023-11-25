@@ -14,6 +14,17 @@ provider "aws" {
   profile = "terraform-user"
 }
 
+variable "region" {
+  description = "The AWS region"
+  default     = "eu-central-1"
+}
+
+variable "account_id" {
+  description = "AWS Account ID"
+  # You can either provide the account ID here or dynamically fetch it using data sources or environment variables if needed
+  default     = "YOUR_ACCOUNT_ID"
+}
+
 ###################
 ### API Gateway ###
 ###################
