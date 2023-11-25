@@ -81,6 +81,28 @@ resource "aws_iam_role" "book-lambda-role" {
   })
 }
 
+   resource "aws_iam_policy" "get-books-log-policy" {
+     name = "get-books-logging-policy"
+     policy = jsonencode({
+       Version = "2012-10-17",
+       Statement = [
+         {
+           Action = [
+             "logs:CreateLogStream",
+             "logs:PutLogEvents"
+           ],
+           Effect = "Allow",
+           Resource = "arn:aws:logs:*:*:*"
+         }
+       ]
+     })
+   }
+
+   resource "aws_iam_role_policy_attachment" "get-books-log-policy-attachment" {
+     role = aws_iam_role.book-lambda-role.id
+     policy_arn = aws_iam_policy.get-books-log-policy.arn
+   }
+
 resource "aws_lambda_function" "book-lambda" {
   function_name = "get_book_lambda"
   handler       = "get_books.lambda_handler"
@@ -90,6 +112,11 @@ resource "aws_lambda_function" "book-lambda" {
 
   # Introduce a change to trigger updates
   source_code_hash = filebase64sha256("${path.module}/output/get_books.zip")
+}
+
+resource "aws_cloudwatch_log_group" "book-lambda-logs" {
+  name              = "/aws/lambda/${aws_lambda_function.book-lambda.function_name}"
+  retention_in_days = 30  # Set retention period for logs, adjust as needed
 }
 
 data "archive_file" "zip_lambda" {
