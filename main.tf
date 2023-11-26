@@ -86,8 +86,8 @@ resource "aws_iam_role" "book-lambda-role" {
   })
 }
 
-   resource "aws_iam_policy" "get-books-log-policy" {
-     name = "get-books-logging-policy"
+   resource "aws_iam_policy" "get-books-policy" {
+     name = "get-books-policy"
      policy = jsonencode({
        Version = "2012-10-17",
        Statement = [
@@ -98,6 +98,13 @@ resource "aws_iam_role" "book-lambda-role" {
            ],
            Effect = "Allow",
            Resource = "arn:aws:logs:*:*:*"
+         },
+         {
+          Action   = [
+          "dynamodb:GetItem"
+          ],
+          Effect   = "Allow",
+          Resource = aws_dynamodb_table.books-table.arn
          }
        ]
      })
@@ -105,7 +112,7 @@ resource "aws_iam_role" "book-lambda-role" {
 
    resource "aws_iam_role_policy_attachment" "get-books-log-policy-attachment" {
      role = aws_iam_role.book-lambda-role.id
-     policy_arn = aws_iam_policy.get-books-log-policy.arn
+     policy_arn = aws_iam_policy.get-books-policy.arn
    }
 
 resource "aws_lambda_function" "book-lambda" {
