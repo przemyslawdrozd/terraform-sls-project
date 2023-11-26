@@ -54,6 +54,11 @@ resource "aws_api_gateway_integration" "integration" {
   uri                     = aws_lambda_function.book-lambda.invoke_arn
 }
 
+resource "aws_api_gateway_deployment" "book-api-deployment" {
+  depends_on  = [aws_api_gateway_integration.integration]
+  rest_api_id = aws_api_gateway_rest_api.book-api.id
+  stage_name  = "dev"
+}
 
 ###############
 ### Lambdas ###
