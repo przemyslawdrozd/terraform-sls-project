@@ -124,6 +124,11 @@ resource "aws_lambda_function" "book-lambda" {
 
   # Introduce a change to trigger updates
   source_code_hash = filebase64sha256("${path.module}/output/get_books.zip")
+  environment {
+    variables = {
+      BOOKS_TABLE_NAME = aws_dynamodb_table.books-table.name
+    }
+  }
 }
 
 resource "aws_cloudwatch_log_group" "book-lambda-logs" {
