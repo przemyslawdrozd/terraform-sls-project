@@ -49,7 +49,7 @@ resource "aws_api_gateway_integration" "integration" {
   rest_api_id             = aws_api_gateway_rest_api.book-api.id
   resource_id             = aws_api_gateway_resource.resource.id
   http_method             = aws_api_gateway_method.get-method.http_method
-  integration_http_method = "GET"
+  integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.book-lambda.invoke_arn
 }
