@@ -33,3 +33,5 @@ terraform.rc
 
 # Generated archive files
 /output
+
+.DS_Store
