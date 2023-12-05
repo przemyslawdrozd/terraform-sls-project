@@ -1,27 +1,28 @@
-name: Terraform GitHub Actions
-
 on:
- push:
-   branches:
-     - dev
-
+  push:
+    branches:
+      - dev
+ 
 jobs:
- terraform:
-   name: 'Terraform'
-   runs-on: ubuntu-latest
-
-   steps:
-   - name: Checkout
-     uses: actions/checkout@v2
-
-   - name: Setup Terraform
-     uses: hashicorp/setup-terraform@v1
-
-   - name: Terraform Init
-     run: terraform init
-
-   - name: Terraform Validate
-     run: terraform validate
-
-   - name: Terraform Apply
-     run: terraform apply -auto-approve
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+ 
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+ 
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+ 
+    - name: Terraform Init
+      run: terraform init
+ 
+    - name: Create Zip File
+      run: zip -r output/get_books.zip src
+ 
+    - name: Terraform Validate
+      run: terraform validate
+ 
+    - name: Terraform Apply
+      run: terraform apply -auto-approve
