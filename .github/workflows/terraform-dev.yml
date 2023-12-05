@@ -24,7 +24,10 @@ jobs:
     - name: Create Zip File
       run: zip -r output/get_books.zip src
 
-    - name: Terraform Workspace Select
+    - name: Create Workspace
+      run: terraform workspace new dev || true
+    
+    - name: Select Workspace
       run: terraform workspace select dev
  
     - name: Terraform Validate
