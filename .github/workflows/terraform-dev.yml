@@ -17,9 +17,15 @@ jobs:
  
     - name: Terraform Init
       run: terraform init
+
+    - name: Create Output Directory
+      run: mkdir -p output
  
     - name: Create Zip File
       run: zip -r output/get_books.zip src
+
+    - name: Terraform Workspace Select
+      run: terraform workspace select dev
  
     - name: Terraform Validate
       run: terraform validate
