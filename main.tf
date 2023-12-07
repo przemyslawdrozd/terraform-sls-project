@@ -27,10 +27,10 @@ variable "account_id" {
 
 module "dynamodb" {
   source = "./terraform/dynamodb"
-  table_name = "${var.env}-book_table"
+  table_name = "${var.stage}-book_table"
 }
 
-variable "env" {
+variable "stage" {
  description = "Prefix for resources"
 }
 
@@ -38,7 +38,7 @@ variable "env" {
 ### API Gateway ###
 ###################
 resource "aws_api_gateway_rest_api" "book-api" {
-  name = "${var.env}-book-api"
+  name = "${var.stage}-book-api"
 }
 
 resource "aws_api_gateway_resource" "resource" {
@@ -66,7 +66,7 @@ resource "aws_api_gateway_integration" "integration" {
 resource "aws_api_gateway_deployment" "book-api-deployment" {
   depends_on  = [aws_api_gateway_integration.integration]
   rest_api_id = aws_api_gateway_rest_api.book-api.id
-  stage_name  = var.env
+  stage_name  = var.stage
 }
 
 ###############
@@ -81,7 +81,7 @@ resource "aws_lambda_permission" "apigw" {
 }
 
 resource "aws_iam_role" "book-lambda-role" {
-  name               = "${var.env}-lambda_dynamodb_role"
+  name               = "${var.stage}-lambda_dynamodb_role"
   assume_role_policy = jsonencode({
     Version     = "2012-10-17",
     Statement   = [{
@@ -95,7 +95,7 @@ resource "aws_iam_role" "book-lambda-role" {
 }
 
 resource "aws_iam_policy" "get-books-policy" {
-  name        = "${var.env}-get-books-policy"
+  name        = "${var.stage}-get-books-policy"
   policy      = jsonencode({
     Version   = "2012-10-17",
     Statement = [
@@ -124,7 +124,7 @@ resource "aws_iam_role_policy_attachment" "get-books-log-policy-attachment" {
 }
 
 resource "aws_lambda_function" "book-lambda" {
-  function_name = "${var.env}-get_book_lambda"
+  function_name = "${var.stage}-get_book_lambda"
   handler       = "get_books.lambda_handler"
   runtime       = "python3.8"
   role          = aws_iam_role.book-lambda-role.arn

@@ -46,7 +46,7 @@ jobs:
 
     - name: Create tfvars File
       run: |
-        echo "env = \"dev\"" > dev.tfvars
+        echo "stage = \"dev\"" > dev.tfvars
         echo "account_id = ${{secrets.AWS_ACC_ID}}" >> dev.tfvars
  
     - name: Terraform validate
