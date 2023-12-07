@@ -33,8 +33,8 @@ jobs:
     - name: Create tfvars File
       run: echo "env = \"dev\"" > dev.tfvars
  
-    - name: Terraform Validate
-      run: terraform validate -var-file="prod.tfvars"
+    - name: Terraform Plan
+      run: terraform plan -var-file=dev.tfvars
  
     - name: Terraform Apply
-      run: terraform apply -auto-approve -var-file="prod.tfvars"
+      run: terraform apply -auto-approve -var-file=dev.tfvars
