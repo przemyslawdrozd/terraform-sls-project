@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
+      AWS_PROFILE: 'terraform-user'
  
     steps:
     - name: Checkout
@@ -26,7 +27,7 @@ jobs:
       
     - name: Print AWS Credentials
       run: |
-        echo "Region: ${{ secrets.AWS_REGIONE }}"
+        echo "Region: ${{ secrets.AWS_REGION }}"
  
     - name: Terraform Init
       run: terraform init
