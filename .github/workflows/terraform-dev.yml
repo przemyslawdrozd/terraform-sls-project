@@ -45,7 +45,9 @@ jobs:
       run: terraform workspace select dev
 
     - name: Create tfvars File
-      run: echo "env = \"dev\"" > dev.tfvars
+      run: |
+        echo "env = \"dev\"" > dev.tfvars
+        echo "account_id = ${{secrets.AWS_ACC_ID}}" >> dev.tfvars
  
     - name: Terraform Plan
       run: terraform plan -var-file=dev.tfvars
