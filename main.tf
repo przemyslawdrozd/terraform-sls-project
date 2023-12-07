@@ -11,7 +11,6 @@ terraform {
 
 provider "aws" {
   region  = "eu-central-1"
-  profile = "terraform-user"
 }
 
 variable "region" {
@@ -21,15 +20,23 @@ variable "region" {
 
 variable "account_id" {
   description = "AWS Account ID"
-  # You can either provide the account ID here or dynamically fetch it using data sources or environment variables if needed
   default     = "YOUR_ACCOUNT_ID"
+}
+
+module "dynamodb" {
+  source = "./terraform/dynamodb"
+  table_name = "${var.stage}-book_table"
+}
+
+variable "stage" {
+ description = "Prefix for resources"
 }
 
 ###################
 ### API Gateway ###
 ###################
 resource "aws_api_gateway_rest_api" "book-api" {
-  name = "Book REST API"
+  name = "${var.stage}-book-api"
 }
 
 resource "aws_api_gateway_resource" "resource" {
@@ -57,7 +64,7 @@ resource "aws_api_gateway_integration" "integration" {
 resource "aws_api_gateway_deployment" "book-api-deployment" {
   depends_on  = [aws_api_gateway_integration.integration]
   rest_api_id = aws_api_gateway_rest_api.book-api.id
-  stage_name  = "dev"
+  stage_name  = var.stage
 }
 
 ###############
@@ -72,11 +79,10 @@ resource "aws_lambda_permission" "apigw" {
 }
 
 resource "aws_iam_role" "book-lambda-role" {
-  name = "lambda_dynamodb_role"
-
+  name               = "${var.stage}-lambda_dynamodb_role"
   assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [{
+    Version     = "2012-10-17",
+    Statement   = [{
       Effect    = "Allow",
       Principal = {
         Service = "lambda.amazonaws.com"
@@ -86,37 +92,37 @@ resource "aws_iam_role" "book-lambda-role" {
   })
 }
 
-   resource "aws_iam_policy" "get-books-policy" {
-     name = "get-books-policy"
-     policy = jsonencode({
-       Version = "2012-10-17",
-       Statement = [
-         {
-           Action = [
-             "logs:CreateLogStream",
-             "logs:PutLogEvents"
-           ],
-           Effect = "Allow",
-           Resource = "arn:aws:logs:*:*:*"
-         },
-         {
-          Action   = [
+resource "aws_iam_policy" "get-books-policy" {
+  name        = "${var.stage}-get-books-policy"
+  policy      = jsonencode({
+    Version   = "2012-10-17",
+    Statement = [
+      {
+        Action = [
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ],
+        Effect = "Allow",
+        Resource = "arn:aws:logs:*:*:*"
+      },
+      {
+        Action = [
           "dynamodb:GetItem"
-          ],
-          Effect   = "Allow",
-          Resource = aws_dynamodb_table.books-table.arn
-         }
-       ]
-     })
-   }
+        ],
+        Effect   = "Allow",
+        Resource = module.dynamodb.dynamodb_table_arn
+      }
+    ]
+  })
+}
 
-   resource "aws_iam_role_policy_attachment" "get-books-log-policy-attachment" {
-     role = aws_iam_role.book-lambda-role.id
-     policy_arn = aws_iam_policy.get-books-policy.arn
-   }
+resource "aws_iam_role_policy_attachment" "get-books-log-policy-attachment" {
+  role       = aws_iam_role.book-lambda-role.id
+  policy_arn = aws_iam_policy.get-books-policy.arn
+}
 
 resource "aws_lambda_function" "book-lambda" {
-  function_name = "get_book_lambda"
+  function_name = "${var.stage}-get_book_lambda"
   handler       = "get_books.lambda_handler"
   runtime       = "python3.8"
   role          = aws_iam_role.book-lambda-role.arn
@@ -126,7 +132,7 @@ resource "aws_lambda_function" "book-lambda" {
   source_code_hash = filebase64sha256("${path.module}/output/get_books.zip")
   environment {
     variables = {
-      BOOKS_TABLE_NAME = aws_dynamodb_table.books-table.name
+      BOOKS_TABLE_NAME = module.dynamodb.dynamodb_table_name
     }
   }
 }
@@ -137,23 +143,7 @@ resource "aws_cloudwatch_log_group" "book-lambda-logs" {
 }
 
 data "archive_file" "zip_lambda" {
-  type = "zip"
-  source_dir = "${path.module}/src"
+  type        = "zip"
+  source_dir  = "${path.module}/src"
   output_path = "${path.module}/output/get_books.zip"
-
-}
-
-################
-### DynamoDB ###
-################
-resource "aws_dynamodb_table" "books-table" {
-  name           = "books_table"
-  hash_key       = "title"
-  read_capacity  = 5
-  write_capacity = 5
-
-  attribute {
-    name = "title"
-    type = "S"
-  }
 }
