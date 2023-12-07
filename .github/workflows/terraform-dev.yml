@@ -9,7 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
-      AWS_PROFILE: 'terraform-user'
  
     steps:
     - name: Checkout
