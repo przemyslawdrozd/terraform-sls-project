@@ -34,7 +34,7 @@ jobs:
       run: echo "env = \"dev\"" > dev.tfvars
  
     - name: Terraform Validate
-      run: terraform validate -var-file=dev.tfvars
+      run: terraform validate -var-file="prod.tfvars"
  
     - name: Terraform Apply
-      run: terraform apply -auto-approve -var-file=dev.tfvars
+      run: terraform apply -auto-approve -var-file="prod.tfvars"
