@@ -11,7 +11,6 @@ terraform {
 
 provider "aws" {
   region  = "eu-central-1"
-  profile = "terraform-user"
 }
 
 variable "region" {
@@ -21,7 +20,6 @@ variable "region" {
 
 variable "account_id" {
   description = "AWS Account ID"
-  # You can either provide the account ID here or dynamically fetch it using data sources or environment variables if needed
   default     = "YOUR_ACCOUNT_ID"
 }
 
